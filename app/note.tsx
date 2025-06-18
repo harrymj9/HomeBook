@@ -1,22 +1,20 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet,Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function NoteScreen() {
-  const router = useRouter();                        
-  const params = useLocalSearchParams();               // récupère les paramètres passés à la page
-  const note = params.note ? JSON.parse(params.note as string) : null;  
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const note = params.note ? JSON.parse(params.note as string) : null;
 
-  // Si la note n'existe pas (paramètre absent ou invalide), on affiche un message d'erreur simple
   if (!note)
     return (
       <View style={styles.container}>
-        <Text style={styles.error}>Note no found</Text>
+        <Text style={styles.error}>Note not found</Text>
       </View>
     );
 
-  // Fonction pour modifier la note : renvoie vers le formulaire en passant la note actuelle
   const handleEdit = () => {
     router.push({
       pathname: '/form',
@@ -24,26 +22,43 @@ export default function NoteScreen() {
     });
   };
 
-  // Fonction pour supprimer la note
-  const handleDelete = async () => {
-    const raw = await AsyncStorage.getItem('notes');  // on récupère toutes les notes
-    const notes = raw ? JSON.parse(raw) : [];           // on parse en tableau
-    const filtered = notes.filter((n: any) => n.id !== note.id);  // on enlève la note à supprimer
-    await AsyncStorage.setItem('notes', JSON.stringify(filtered));  // on sauvegarde la nouvelle liste
-    router.push('/');                                  // on retourne à la page d'accueil
-  };
+ const handleDelete = () => {
+  {/*  pour la confirmation avant la supression    */}
+  Alert.alert(
+    "Delete Note",
+    "Are you sure you want to delete this note?",
+    [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+            
+        onPress: async () => {
+          const raw = await AsyncStorage.getItem('notes');
+          const notes = raw ? JSON.parse(raw) : [];
+          const filtered = notes.filter((n: any) => n.id !== note.id);
+          await AsyncStorage.setItem('notes', JSON.stringify(filtered));
+          router.push('/');
+        },
+      },
+    ],
+    { cancelable: true }
+  );
+};
+
 
   return (
     <View style={styles.container}>
-      {/* Carte qui affiche la note */}
       <View style={styles.card}>
-        <Text style={styles.title}>{note.title}</Text>      
-        <Text style={styles.content}>{note.contenu}</Text>   
+        <Text style={styles.title}>{note.title}</Text>
+        <Text style={styles.content}>{note.content}</Text> 
         <Text style={styles.date}>
           {new Date(note.date).toLocaleDateString()}
-        </Text>                                              
+        </Text>
 
-        {/* Point coloré selon l’importance */}
         <View
           style={[
             styles.importanceDot,
@@ -58,7 +73,6 @@ export default function NoteScreen() {
           ]}
         />
 
-        {/* Boutons Modifier et Supprimer côte à côte */}
         <View style={styles.cardButtons}>
           <View style={styles.button}>
             <Button title="Edit" onPress={handleEdit} color="#007AFF" />
@@ -69,7 +83,6 @@ export default function NoteScreen() {
         </View>
       </View>
 
-      {/* Bouton Retour en bas de l’écran */}
       <View style={styles.backButton}>
         <Button title="BACK" onPress={() => router.push('/')} color="#fff" />
       </View>
@@ -77,11 +90,10 @@ export default function NoteScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#456990', 
+    backgroundColor: '#456990',
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
@@ -91,15 +103,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   card: {
-    backgroundColor: '#fff',     
-    borderRadius: 16,            
+    backgroundColor: '#fff',
+    borderRadius: 16,
     padding: 20,
     width: '100%',
-    shadowColor: '#000',         
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
-    elevation: 5,                 
+    elevation: 5,
     marginBottom: 40,
   },
   title: {
@@ -126,20 +138,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   cardButtons: {
-    flexDirection: 'row',          
-    justifyContent: 'space-between',  
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     gap: 12,
   },
   button: {
-    flex: 1,                      
+    flex: 1,
     borderRadius: 8,
-    overflow: 'hidden',          
+    overflow: 'hidden',
   },
   backButton: {
-    position: 'absolute',         
+    position: 'absolute',
     bottom: 40,
     width: '80%',
-    backgroundColor: '#2C3E50',  
+    backgroundColor: '#2C3E50',
     borderRadius: 8,
     overflow: 'hidden',
   },

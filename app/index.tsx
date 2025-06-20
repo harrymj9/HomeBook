@@ -14,7 +14,7 @@ type Note = {
   importance: 'high' | 'medium' | 'low'; 
 };
 
-
+  
 export default function Index() {
   const router = useRouter();                   
   const [notes, setNotes] = useState<Note[]>([]); // État pour stocker les notes
@@ -43,11 +43,12 @@ export default function Index() {
     <View style={styles.container}>
       <View style={styles.topBar}>
         <Text style={styles.appTitle}>HomeBook</Text>  
-        <Link href="/form" asChild>
-          <Pressable style={styles.addButton}>
-            <Text style={styles.addButtonText}>ADD</Text>
-          </Pressable>
-        </Link>
+        <Pressable
+          style={styles.addButton}
+          onPress={() => router.push('/form')} // navigation propre sans paramètre
+        >
+          <Text style={styles.addButtonText}>ADD</Text>
+        </Pressable>
       </View>
 
       {/* Si aucune note n’existe, on affiche un message */}
@@ -185,3 +186,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
 });
+
+
+ 

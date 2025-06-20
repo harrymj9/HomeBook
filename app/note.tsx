@@ -4,10 +4,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function NoteScreen() {
-  const router = useRouter();
+  const router = useRouter(); 
   const params = useLocalSearchParams();
   const note = params.note ? JSON.parse(params.note as string) : null;
 
+
+   
   if (!note)
     return (
       <View style={styles.container}>
@@ -35,12 +37,12 @@ export default function NoteScreen() {
       {
         text: "Delete",
         style: "destructive",
-            
+
         onPress: async () => {
           const raw = await AsyncStorage.getItem('notes');
           const notes = raw ? JSON.parse(raw) : [];
-          const filtered = notes.filter((n: any) => n.id !== note.id);
-          await AsyncStorage.setItem('notes', JSON.stringify(filtered));
+          const filtered = notes.filter((n: any) => n.id !== note.id); // enleve la note avec le bon id
+          await AsyncStorage.setItem('notes', JSON.stringify(filtered)); // sauvegarde les nouvelles notes
           router.push('/');
         },
       },
